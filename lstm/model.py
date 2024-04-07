@@ -15,7 +15,7 @@ class Model(nn.Module):
             hidden_size=hp.lstm_hidden_size,
             num_layers=hp.lstm_num_layer,
             batch_first=True,
-            bidirectional=hp.lstm_bidriectional,
+            bidirectional=hp.lstm_bidirectional,
             dropout=hp.lstm_dropout,
         )
         self.lstm_out = nn.LSTM(
@@ -23,7 +23,7 @@ class Model(nn.Module):
             hidden_size=hp.lstm_out_hidden,
             num_layers=hp.lstm_out_num,
             batch_first=True,
-            bidirectional=hp.lstm_out_bidriectional,
+            bidirectional=hp.lstm_out_bidirectional,
         )
         # dropout=hp.lstm_out_dropout 单词 RNN 中不允许添加dropout
         self.fc = nn.Sequential(

@@ -10,7 +10,6 @@ from etc.util.dataset import ImdbDataset
 from etc.util.datamanager import DataManager
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-# device = torch.device("cpu")
 model = Model().to(device)
 optimizer = Adam(model.parameters(), lr=hp.lr)
 
@@ -55,14 +54,7 @@ def train(epochs):
                 cur_acc_t = pred_t.eq(target_t).float().mean()
                 test_acc_list.append(cur_acc_t.cpu().item())
         print(
-            "epoch: ",
-            epoch,
-            "train_loss: ",
-            np.mean(train_loss_list),
-            "train_acc: ",
-            np.mean(train_acc_list),
-            "test_acc",
-            np.mean(test_acc_list),
+            f"epoch: {epoch}, train_loss: {np.mean(train_loss_list):.4f}, train_acc: {np.mean(train_acc_list):.4f}, test_acc: {np.mean(test_acc_list):.4f}"
         )
 
 
@@ -79,14 +71,15 @@ def test():
         input, target = input.to(device), target.to(device)
         with torch.no_grad():
             output = model(input)
-            cur_loss = F.nll_loss(output, target)
+            cur_loss = F.nll_loss(output, target.long())
             loss_list.append(cur_loss.cpu().item())
             # tensor.max() ([values_list], [indices_list])
             pred = output.max(dim=-1)[-1]
             cur_acc = pred.eq(target).float().mean()  # 返回的值是否与 target 相同
             acc_list.append(cur_acc.cpu().item())
-    print("total loss, acc: ", np.mean(loss_list), np.mean(acc_list))
+    print(f"total loss: {np.mean(loss_list):.4f}, acc: {np.mean(acc_list):.4f}")
 
 
 if __name__ == "__main__":
     train(hp.epoch)
+    test()

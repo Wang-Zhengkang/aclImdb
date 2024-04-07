@@ -1,12 +1,8 @@
-"""
-建立词表，实现字符与数字之间的相互转换并保存词表
-利用 训练集 中的数据建立词表，跟测试集没有关系
-"""
-
 import os
 import pickle
 from tqdm import tqdm
-from etc.util.tokenize_rw import tokenize
+
+from tokenize import tokenize
 import etc.util.hyper_parameters as hp
 
 
@@ -18,7 +14,7 @@ class DataManager:
         self.PAD = 1
         self.vocab = {self.UNK_TAG: self.UNK, self.PAD_TAG: self.PAD}
         self.count = {}
-    
+
     def __len__(self):
         return len(self.vocab)
 
@@ -26,7 +22,7 @@ class DataManager:
         for token in token_list:
             self.count[token] = self.count.get(token, 0) + 1
 
-    def build_vocab(self, min=0, max=None, max_features=None):
+    def build_vocab(self, min=0, max=None, max_features=hp.max_features):
         if min is not None:
             self.count = {
                 token: value for token, value in self.count.items() if value > min
@@ -39,7 +35,7 @@ class DataManager:
 
         if max_features is not None:
             temp = sorted(self.count.items(), key=lambda x: x[-1], reverse=True)[
-                :max_features
+                : max_features - 2
             ]
             self.count = dict(temp)
 
@@ -48,13 +44,12 @@ class DataManager:
 
         self.inverse_vocab = dict(zip(self.vocab.values(), self.vocab.keys()))
 
-    def token_vectorize(self, token_list, max_len=None):
+    def token_vectorize(self, token_list, max_len=hp.max_len):
         # 统一长度
-        if max_len is not None:
-            if max_len > len(token_list):
-                token_list += [self.PAD_TAG] * (max_len - len(token_list))
-            if max_len < len(token_list):
-                token_list = token_list[:max_len]
+        if max_len > len(token_list):
+            token_list += [self.PAD_TAG] * (max_len - len(token_list))
+        if max_len < len(token_list):
+            token_list = token_list[:max_len]
 
         return [self.vocab.get(token, self.UNK) for token in token_list]
 
